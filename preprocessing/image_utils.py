@@ -26,16 +26,10 @@ def write_file(img, file):
 def rand_image(dir):
   return read_file(dir+"/"+random.choice(os.listdir(dir)))
 
-# experiment 2
 def to_grayscale(img):
   return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
 def find_largest_contour(image):
-  """
-  This function finds all the contours in an image and return the largest
-  contour area.
-  :param image: a binary image
-  """
   image = image.astype(np.uint8)
   contours,_ = cv2.findContours(
     image,
@@ -46,7 +40,6 @@ def find_largest_contour(image):
 
 def crop(img, crop):
   x, y, w, h = crop
-  print("cropping", w, h)
   return img[y:y+h,x:x+w]
 
 def bbox_contour(contour, pad):
