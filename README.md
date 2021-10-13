@@ -1,6 +1,8 @@
 # Petals
 
-Step 1: unzip the zips in dataset
+Python 3.9.7
+
+Step 1: unzip the zips in `/dataset`
 
 To crop everything in a directory:
 
