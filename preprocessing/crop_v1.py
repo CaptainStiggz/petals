@@ -19,6 +19,7 @@ class Cropper:
   contval = (3, 8)
   thresh = 210
   pad = 50
+  contrast_threshold = 2.5
 
   def threshold(self, img):
     # blur the image to smmooth out the edges a bit, also reduces a bit of noise
@@ -33,19 +34,27 @@ class Cropper:
   def process_dir(self, dir):
     itools.process_dir(dir, self.process_image)
 
+  def crop(self, img):
+    # contrast = itools.contrast(img, self.contval)
+    sat = itools.saturate(img, self.satval)
+    contour = itools.find_largest_threshold_contour(sat, self.thresh)
+    if contour is not None:
+      bbox = itools.bbox_contour(contour, self.pad)
+      if bbox is not None:
+        return itools.crop(img, bbox)
+
   def process_image(self, file, output):
     img = itools.read_file(file)
     # contrast = itools.contrast(img, self.contval)
     sat = itools.saturate(img, self.satval)
-    gray = self.threshold(sat)
-    contour = itools.find_largest_contour(gray)
+    contour = itools.find_largest_threshold_contour(sat, self.thresh)
     if contour is not None:
       bbox = itools.bbox_contour(contour, self.pad)
       if bbox is not None:
         cropped = itools.crop(img, bbox)
-        if cropped.size == 0:
-          print("image empty")
-        else:
+        if itools.contrast(cropped) < self.contrast_threshold:
+          print("IMAGE CONTRAST TOO LOW")
+        else: 
           itools.write_file(cv2.cvtColor(cropped, cv2.COLOR_RGB2BGR), output)
     else:
-      print("skipping.")
+      print("CONTOUR OR BBOX NONT FOUND")

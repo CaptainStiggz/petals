@@ -29,6 +29,16 @@ def rand_image(dir):
 def to_grayscale(img):
   return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
+def threshold(img, lower = 200, upper = 255):
+    blurred = cv2.GaussianBlur(img, (5, 5), 0)
+    gray = cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
+    _, gray = cv2.threshold(gray, lower , upper, cv2.CHAIN_APPROX_NONE)
+    return gray
+
+def find_largest_threshold_contour(img, lower = 200, upper = 255):
+  gray = threshold(img, lower, upper)
+  return find_largest_contour(gray)
+
 def find_largest_contour(image):
   image = image.astype(np.uint8)
   contours,_ = cv2.findContours(
@@ -94,3 +104,7 @@ def process_dir(dir, func, limit = 0):
       i += 1
       if limit > 0 and i > limit:
         break
+
+def contrast(img):
+  img_grey = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+  return img_grey.std()
