@@ -105,6 +105,34 @@ def process_dir(dir, func, limit = 0):
       if limit > 0 and i > limit:
         break
 
-def contrast(img):
-  img_grey = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-  return img_grey.std()
+def print_progress_bar(current, total, barLength = 20):
+    percent = float(current) * 100 / total
+    arrow   = '-' * int(percent/100 * barLength - 1) + '>'
+    spaces  = ' ' * (barLength - len(arrow))
+
+    print('Progress: [%s%s] %d %%' % (arrow, spaces, percent), end='\r')
+
+def get_file_count(dir, filetype = ".jpg"):
+  i = 0
+  for root, dirs, files in os.walk(dir, topdown=False):
+    for name in files:
+      if name.endswith(filetype):
+        i += 1
+  return i
+
+def run_on_dir(dir, func, filetype = ".jpg"):
+  i = 0
+  cnt = get_file_count(dir, filetype)
+  print(f'Processing {cnt} files...')
+  for root, dirs, files in os.walk(dir, topdown=False):
+    for name in files:
+      if name.endswith(filetype):
+        func(f'{root}/{name}')
+        print_progress_bar(i, cnt)
+        i += 1
+        
+        
+
+# def contrast(img):
+#   img_grey = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+#   return img_grey.std()
