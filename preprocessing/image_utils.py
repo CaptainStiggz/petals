@@ -1,15 +1,3 @@
-# import pixellib
-# from pixellib.instance import instance_segmentation
-
-# segment_image=instance_segmentation()
-# segment_image.load_model("mask_rcnn_coco.h5")
-# segment_image.segmentImage("5a/ST05_SE010107.jpg", 
-#   extract_segmented_objects=True,
-#   save_extracted_objects=True, 
-#   show_bboxes=True,
-#   output_image_name="output.jpg"
-# )
-
 import cv2
 import numpy as np
 import os

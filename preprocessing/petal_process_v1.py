@@ -4,6 +4,8 @@ import shutil
 import re
 import cv2 
 import json
+import numpy as np
+from PIL import Image
 
 class PetalProcessor:
   dir = ""
@@ -71,17 +73,14 @@ class PetalProcessor:
     if os.path.exists(f'{self.out_dir}/{filepath}'):
       return
 
-    img = itools.read_file(file)
-
-    height, width, _channels = img.shape
-    if height < 1024 or width < 1024:
-      print("IMG TOO SMALL")
-      self.delete_empty(file)
-      return
-
-    resized = cv2.resize(img, (size, size), interpolation = cv2.INTER_AREA)
-    self.save_output_img(resized, file)
-    
+    with Image.open(file) as img:
+      resized = img.resize((1024, 1024), resample=Image.BICUBIC)
+      filepath = file[len(self.dir):]
+      dest = f'{self.out_dir}/{filepath}'
+      if not os.path.exists(os.path.dirname(dest)):
+        os.makedirs(os.path.dirname(dest))
+      # itools.write_file(cv2.cvtColor(img, cv2.COLOR_RGB2BGR), dest)
+      resized.save(dest)      
 
   def crop_all_to_largest_square(self):
     json_path = f'{self.dir}boxes.json'
@@ -191,3 +190,18 @@ class PetalProcessor:
       return
     
     func(file, img, bbox)
+
+  def find_dark_files(self):
+    itools.run_on_dir(self.dir, self.avg_img_edge_pixels)
+
+  def avg_img_edge_pixels(self, file):
+    img = itools.read_file(file)
+    r = img[:,:,0].astype('float')
+    g = img[:,:,1].astype('float')
+    b = img[:,:,2].astype('float')
+    arr = (r + g + b) / 3
+    edges = np.concatenate([arr[0,:-1], arr[:-1,-1], arr[-1,::-1], arr[-2:0:-1,0]])
+    avg_edge = np.around(np.average(edges))
+    if avg_edge < 250:
+      print(avg_edge, file)
+      self.delete_empty(file)
